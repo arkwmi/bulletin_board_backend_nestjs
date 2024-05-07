@@ -1,10 +1,19 @@
 import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './user.entity';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @Post('temp_register')
+  async register(@Body() createUserDto: CreateUserDto) {
+    await this.userService.tempRegister(createUserDto);
+    return {
+      message: '仮登録完了',
+    };
+  }
 
   @Get()
   async getAllUsers(): Promise<User[]> {

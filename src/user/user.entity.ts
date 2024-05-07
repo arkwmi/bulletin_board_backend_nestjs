@@ -5,13 +5,13 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 256 })
+  @Column({ length: 256, nullable: true })
   email: string;
 
-  @Column({ length: 50 })
+  @Column({ length: 50, nullable: true })
   nickname: string;
 
-  @Column({ length: 256 })
+  @Column({ length: 256, nullable: true })
   password: string;
 
   @Column({ default: false })
