@@ -5,24 +5,22 @@ export class Article {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'user_id', length: 7 })
-  userId: string;
+  @Column({ nullable: false })
+  userId: number;
 
-  @Column({ name: 'title', type: 'text' })
+  @Column({ type: 'text', nullable: false })
   title: string;
 
-  @Column({ name: 'content', type: 'longtext' })
+  @Column({ type: 'longtext', nullable: false })
   content: string;
 
   @Column({
-    name: 'created_at',
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date;
 
   @Column({
-    name: 'updated_at',
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
     onUpdate: 'CURRENT_TIMESTAMP',
