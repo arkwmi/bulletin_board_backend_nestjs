@@ -8,10 +8,20 @@ export class Article {
   @Column({ nullable: false })
   userId: number;
 
-  @Column({ type: 'text', nullable: false })
+  @Column({
+    type: 'text',
+    charset: 'utf8mb4',
+    collation: 'utf8mb4_general_ci',
+    nullable: false,
+  })
   title: string;
 
-  @Column({ type: 'longtext', nullable: false })
+  @Column({
+    type: 'longtext',
+    charset: 'utf8mb4',
+    collation: 'utf8mb4_general_ci',
+    nullable: false,
+  })
   content: string;
 
   @Column({

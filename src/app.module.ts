@@ -9,12 +9,13 @@ import { ArticleModule } from './article/article.module';
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
-      port: 8889,
-      username: 'root',
-      password: 'root',
+      host: 'db',
+      port: 3306,
+      username: 'username',
+      password: 'password',
       database: 'bulletin_board',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      charset: 'utf8mb4',
       synchronize: true, // 開発中のみ使用（自動マイグレーションを有効にする）
     }),
     UserModule,

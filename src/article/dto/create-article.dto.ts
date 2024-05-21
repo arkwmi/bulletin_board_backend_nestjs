@@ -2,7 +2,7 @@ import { IsNumber, IsString } from 'class-validator';
 
 export class CreateArticleDto {
   @IsNumber()
-  user_id: number;
+  userId: number;
 
   @IsString()
   title: string;

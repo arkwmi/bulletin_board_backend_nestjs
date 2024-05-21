@@ -24,7 +24,7 @@ export class ArticleService {
   // 記事登録
   async postArticle(createArticleDto: CreateArticleDto): Promise<void> {
     const article = new Article();
-    article.userId = createArticleDto.user_id;
+    article.userId = createArticleDto.userId;
     article.title = createArticleDto.title;
     article.content = createArticleDto.content;
 
