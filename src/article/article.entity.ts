@@ -1,4 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { Comment } from '../comment/comment.entity';
+import { User } from 'src/user/user.entity';
 
 @Entity()
 export class Article {
@@ -28,4 +37,11 @@ export class Article {
     onUpdate: 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
+
+  @OneToMany(() => Comment, (comment) => comment.article)
+  comments: Comment[];
+
+  @ManyToOne(() => User, (user) => user.articles)
+  @JoinColumn({ name: 'userId' })
+  user: User;
 }
