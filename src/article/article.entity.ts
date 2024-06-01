@@ -15,7 +15,7 @@ export class Article {
   id: number;
 
   @Column({ name: 'user_id', length: 7 })
-  userId: string;
+  userId: number;
 
   @Column({ name: 'title', type: 'text' })
   title: string;

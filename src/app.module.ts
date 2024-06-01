@@ -3,11 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
-<<<<<<< Updated upstream
-=======
 import { ArticleModule } from './article/article.module';
 import { CommentModule } from './comment/comment.module';
->>>>>>> Stashed changes
 
 @Module({
   imports: [
@@ -23,11 +20,8 @@ import { CommentModule } from './comment/comment.module';
       synchronize: true, // 開発中のみ使用（自動マイグレーションを有効にする）
     }),
     UserModule,
-<<<<<<< Updated upstream
-=======
     ArticleModule,
     CommentModule,
->>>>>>> Stashed changes
   ],
   controllers: [AppController],
   providers: [AppService],

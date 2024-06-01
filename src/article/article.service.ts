@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Article } from './article.entity';
+import { CreateArticleDto } from './dto/create-article.dto';
 
 @Injectable()
 export class ArticleService {
@@ -13,8 +14,6 @@ export class ArticleService {
   async getAllArticles(): Promise<Article[]> {
     return this.articleRepository.find();
   }
-<<<<<<< Updated upstream
-=======
 
   // 記事IDと紐づく記事、コメント一覧を取得
   async getArticleDetail(articleId: number): Promise<any> {
@@ -59,5 +58,4 @@ export class ArticleService {
 
     console.log('記事登録完了');
   }
->>>>>>> Stashed changes
 }
