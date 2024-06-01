@@ -21,16 +21,6 @@ export class ArticleService {
     }
   }
 
-  // 記事IDと紐づく行取得
-  async getArticleId(id: number): Promise<Article> {
-    try {
-      return this.articleRepository.findOne({ where: { id } });
-    } catch (error) {
-      console.error('記事詳細の取得に失敗しました:', error);
-      throw new InternalServerErrorException('記事詳細の取得に失敗しました');
-    }
-  }
-
   // 記事登録
   async postArticle(createArticleDto: CreateArticleDto): Promise<void> {
     const article = new Article();
@@ -45,6 +35,16 @@ export class ArticleService {
     } catch (error) {
       console.error('記事登録に失敗しました:', error);
       throw new InternalServerErrorException('記事登録に失敗しました');
+    }
+  }
+
+  // 記事テーブルの全ての行数を取得
+  async getArticleCount(): Promise<number> {
+    try {
+      return await this.articleRepository.count();
+    } catch (error) {
+      console.error('記事数の取得に失敗しました:', error);
+      throw new InternalServerErrorException('記事数の取得に失敗しました');
     }
   }
 }

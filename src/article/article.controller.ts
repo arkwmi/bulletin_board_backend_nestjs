@@ -1,11 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  InternalServerErrorException,
-  Param,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { Article } from './article.entity';
 import { CreateArticleDto } from './dto/create-article.dto';
@@ -16,34 +9,19 @@ export class ArticleController {
 
   @Get() // 記事一覧取得
   async getAllArticles(): Promise<Article[]> {
-    try {
-      return await this.articleService.getAllArticles();
-    } catch (error) {
-      console.error('記事一覧の取得に失敗しました:', error);
-      throw new InternalServerErrorException('記事一覧の取得に失敗しました');
-    }
-  }
-
-  @Get(':id') // 記事IDと紐づく行取得
-  async getArticleId(@Param('id') id: string): Promise<Article> {
-    try {
-      return this.articleService.getArticleId(parseInt(id, 10));
-    } catch (error) {
-      console.error('記事詳細の取得に失敗しました:', error);
-      throw new InternalServerErrorException('記事詳細の取得に失敗しました');
-    }
+    return await this.articleService.getAllArticles();
   }
 
   @Post() // 記事登録
   async postArticle(@Body() createArticleDto: CreateArticleDto) {
-    try {
-      await this.articleService.postArticle(createArticleDto);
-      return {
-        message: '記事投稿完了',
-      };
-    } catch (error) {
-      console.error('記事投稿に失敗しました:', error);
-      throw new InternalServerErrorException('記事投稿に失敗しました');
-    }
+    await this.articleService.postArticle(createArticleDto);
+    return {
+      message: '記事投稿完了',
+    };
+  }
+
+  @Get('count') // 記事テーブルの全ての行数を取得
+  async getArticleCount(): Promise<number> {
+    return await this.articleService.getArticleCount();
   }
 }

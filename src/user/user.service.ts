@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
@@ -30,5 +30,15 @@ export class UserService {
 
   async deleteUser(id: number): Promise<void> {
     await this.userRepository.delete(id);
+  }
+
+  // ユーザーテーブルの全ての行数を取得
+  async getUserCount(): Promise<number> {
+    try {
+      return await this.userRepository.count();
+    } catch (error) {
+      console.error('会員数の取得に失敗しました:', error);
+      throw new InternalServerErrorException('会員数の取得に失敗しました');
+    }
   }
 }
