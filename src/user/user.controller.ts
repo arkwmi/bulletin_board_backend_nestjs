@@ -1,4 +1,10 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  InternalServerErrorException,
+  Post,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './user.entity';
 
@@ -11,21 +17,18 @@ export class UserController {
     return this.userService.getAllUsers();
   }
 
-  @Get(':id')
-  async getUserId(@Param('id') id: string): Promise<User> {
-    return this.userService.getUserId(parseInt(id, 10));
-  }
-
   @Post()
   async createUser(@Body() userData: Partial<User>): Promise<User> {
     return this.userService.createUser(userData);
   }
 
-  @Put(':id')
-  async updateUser(
-    @Param('id') id: string,
-    @Body() userData: Partial<User>,
-  ): Promise<User> {
-    return this.userService.updateUser(parseInt(id, 10), userData);
+  @Get('count') // ユーザーテーブルの全ての行数を取得
+  async getArticleCount(): Promise<number> {
+    try {
+      return await this.userService.getUserCount();
+    } catch (error) {
+      console.error('会員数の取得に失敗しました:', error);
+      throw new InternalServerErrorException('会員数の取得に失敗しました');
+    }
   }
 }
