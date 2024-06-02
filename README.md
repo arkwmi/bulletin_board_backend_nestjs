@@ -23,8 +23,8 @@
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
 ## 起動方法
-docker-compose build
-docker-compose up -d
+- docker-compose build
+- docker-compose up -d
 
 ## Description
 
