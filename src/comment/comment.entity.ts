@@ -1,29 +1,23 @@
+import { Article } from 'src/article/article.entity';
+import { User } from 'src/user/user.entity';
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  OneToMany,
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Comment } from '../comment/comment.entity';
-import { User } from 'src/user/user.entity';
 
 @Entity()
-export class Article {
+export class Comment {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ nullable: false })
   userId: number;
 
-  @Column({
-    type: 'text',
-    charset: 'utf8mb4',
-    collation: 'utf8mb4_general_ci',
-    nullable: false,
-  })
-  title: string;
+  @Column({ nullable: false })
+  articleId: number;
 
   @Column({
     type: 'longtext',
@@ -31,7 +25,7 @@ export class Article {
     collation: 'utf8mb4_general_ci',
     nullable: false,
   })
-  content: string;
+  comment: string;
 
   @Column({
     type: 'timestamp',
@@ -46,10 +40,11 @@ export class Article {
   })
   updatedAt: Date;
 
-  @OneToMany(() => Comment, (comment) => comment.article)
-  comments: Comment[];
+  @ManyToOne(() => Article, (article) => article.comments)
+  @JoinColumn({ name: 'articleId' })
+  article: Article;
 
-  @ManyToOne(() => User, (user) => user.articles)
+  @ManyToOne(() => User, (user) => user.comments)
   @JoinColumn({ name: 'userId' })
   user: User;
 }
