@@ -2,13 +2,17 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Article } from './article.entity';
+import { Comment } from '../comment/comment.entity';
 import { CreateArticleDto } from './dto/create-article.dto';
+import { UpdateArticleDto } from './dto/update-article.dto';
 
 @Injectable()
 export class ArticleService {
   constructor(
     @InjectRepository(Article)
     private articleRepository: Repository<Article>,
+    @InjectRepository(Comment)
+    private readonly commentRepository: Repository<Comment>,
   ) {}
 
   // 記事テーブルの全ての行数を取得
@@ -44,10 +48,12 @@ export class ArticleService {
       }
 
       const articleDetail = {
+        id: article.id,
         title: article.title,
         content: article.content,
         createdAt: article.createdAt,
         comments: article.comments.map((comment) => ({
+          id: comment.id,
           comment: comment.comment,
           createdAt: comment.createdAt,
           nickname: comment.user.nickname,
@@ -81,6 +87,44 @@ export class ArticleService {
     } catch (error) {
       console.error('記事登録に失敗しました:', error);
       throw new InternalServerErrorException('記事登録に失敗しました');
+    }
+  }
+
+  // ログイン中のユーザーが投稿した記事一覧を取得
+  async getArticlesByUserId(userId: number): Promise<Article[]> {
+    return await this.articleRepository.find({
+      where: { userId: userId },
+    });
+  }
+
+  // 記事更新
+  async updateArticle(updateArticleDto: UpdateArticleDto): Promise<Article> {
+    try {
+      const { id, title, content } = updateArticleDto;
+      const article = await this.articleRepository.findOne({ where: { id } });
+      if (!article) {
+        throw new Error('Article not found');
+      }
+      article.title = title;
+      article.content = content;
+      return await this.articleRepository.save(article);
+    } catch (error) {
+      console.error('記事更新に失敗しました:', error);
+      throw new InternalServerErrorException('記事更新に失敗しました');
+    }
+  }
+
+  // 記事削除
+  async deleteArticle(id: number): Promise<void> {
+    try {
+      // 先に関連するコメント削除
+      await this.commentRepository.delete({ articleId: id });
+
+      // 次に記事削除
+      await this.articleRepository.delete(id);
+    } catch (error) {
+      console.error('記事削除に失敗しました:', error);
+      throw new InternalServerErrorException('記事削除に失敗しました');
     }
   }
 }
