@@ -12,6 +12,7 @@ import { Article } from './article.entity';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { GetArticlesDto } from './dto/get-articles.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
+import { ArticleDetail } from './dto/article-detail.dto';
 
 @Controller('articles')
 export class ArticleController {
@@ -28,7 +29,7 @@ export class ArticleController {
   }
 
   @Get(':id') // 記事IDと紐づく記事、コメント一覧を取得
-  async getArticleDetail(@Param('id') id: number): Promise<Article[]> {
+  async getArticleDetail(@Param('id') id: number): Promise<ArticleDetail> {
     return this.articleService.getArticleDetail(id);
   }
 

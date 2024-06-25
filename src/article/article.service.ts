@@ -5,6 +5,7 @@ import { Article } from './article.entity';
 import { Comment } from '../comment/comment.entity';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
+import { ArticleDetail } from './dto/article-detail.dto';
 
 @Injectable()
 export class ArticleService {
@@ -36,7 +37,7 @@ export class ArticleService {
   }
 
   // 記事IDと紐づく記事、コメント一覧を取得
-  async getArticleDetail(articleId: number): Promise<any> {
+  async getArticleDetail(articleId: number): Promise<ArticleDetail> {
     try {
       const article = await this.articleRepository.findOne({
         where: { id: articleId },
