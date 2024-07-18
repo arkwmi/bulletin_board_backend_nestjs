@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Comment } from '../comment/comment.entity';
 import { Article } from 'src/article/article.entity';
+import { Token } from 'src/token/token.entity';
 
 @Entity()
 export class User {
@@ -17,17 +18,20 @@ export class User {
   password: string;
 
   @Column({ default: false })
-  register_completed_flg: boolean;
+  registerCompletedFlg: boolean;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  created_at: Date;
+  createdAt: Date;
 
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
     onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updated_at: Date;
+  updatedAt: Date;
+
+  @OneToMany(() => Token, (token) => token.user)
+  tokens: Token[];
 
   @OneToMany(() => Comment, (comment) => comment.user)
   comments: Comment[];
