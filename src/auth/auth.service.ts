@@ -101,7 +101,7 @@ export class AuthService {
   }
 
   // トークンの有効性をチェック
-  async validateToken(token: string): Promise<boolean> {
+  async validateToken(token: string): Promise<{ valid: boolean }> {
     try {
       const tokenEntity = await this.tokenRepository.findOneBy({
         temporaryToken: token,
@@ -112,8 +112,14 @@ export class AuthService {
       if (tokenEntity.expirationDate < new Date()) {
         throw new BadRequestException('トークンの有効期限が切れています。');
       }
-      return true;
+      return { valid: true };
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
       console.error('トークンの検証に失敗しました:', error);
       throw new InternalServerErrorException('トークンの検証に失敗しました');
     }
