@@ -6,11 +6,14 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { ArticleModule } from './article/article.module';
 import { CommentModule } from './comment/comment.module';
+import { TokenModule } from './token/token.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: '.env',
+      isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -28,6 +31,8 @@ import { CommentModule } from './comment/comment.module';
       inject: [ConfigService],
     }),
     UserModule,
+    TokenModule,
+    AuthModule,
     ArticleModule,
     CommentModule,
   ],

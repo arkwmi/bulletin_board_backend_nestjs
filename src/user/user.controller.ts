@@ -1,10 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  InternalServerErrorException,
-  Post,
-} from '@nestjs/common';
+import { Controller, Get, InternalServerErrorException } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './user.entity';
 
@@ -15,11 +9,6 @@ export class UserController {
   @Get()
   async getAllUsers(): Promise<User[]> {
     return this.userService.getAllUsers();
-  }
-
-  @Post()
-  async createUser(@Body() userData: Partial<User>): Promise<User> {
-    return this.userService.createUser(userData);
   }
 
   @Get('count') // ユーザーテーブルの全ての行数を取得
