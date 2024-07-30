@@ -3,6 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
@@ -13,6 +14,10 @@ import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from 'src/user/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import bcrypt from 'bcrypt';
+import { LoginUserDto } from './dto/login-user.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
@@ -24,6 +29,7 @@ export class AuthService {
     private userRepository: Repository<User>,
     @InjectRepository(Token)
     private tokenRepository: Repository<Token>,
+    private jwtService: JwtService,
   ) {
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -58,8 +64,6 @@ export class AuthService {
       const expirationDate = new Date();
       // トークン有効期限を1時間後に設定
       expirationDate.setUTCHours(expirationDate.getUTCHours() + 1);
-      // テスト用
-      // expirationDate.setMinutes(expirationDate.getMinutes() + 1);
 
       const tokenData = {
         userId: userId,
@@ -101,7 +105,9 @@ export class AuthService {
   }
 
   // トークンの有効性をチェック
-  async validateToken(token: string): Promise<{ valid: boolean }> {
+  async validateToken(
+    token: string,
+  ): Promise<{ valid: boolean; userId: number }> {
     try {
       const tokenEntity = await this.tokenRepository.findOneBy({
         temporaryToken: token,
@@ -112,7 +118,8 @@ export class AuthService {
       if (tokenEntity.expirationDate < new Date()) {
         throw new BadRequestException('トークンの有効期限が切れています。');
       }
-      return { valid: true };
+      // 有効であればuserIdを返却
+      return { valid: true, userId: tokenEntity.userId };
     } catch (error) {
       if (
         error instanceof NotFoundException ||
@@ -122,6 +129,68 @@ export class AuthService {
       }
       console.error('トークンの検証に失敗しました:', error);
       throw new InternalServerErrorException('トークンの検証に失敗しました');
+    }
+  }
+
+  // ユーザー本登録
+  async updateUser(updateUserDto: UpdateUserDto): Promise<User> {
+    try {
+      const { id, nickname, password } = updateUserDto;
+      const user = await this.userRepository.findOne({ where: { id } });
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      // パスワードハッシュ化
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+      // ユーザー情報更新
+      user.nickname = nickname;
+      user.password = hashedPassword;
+      user.registerCompletedFlg = true;
+      const updatedUser = await this.userRepository.save(user);
+
+      // トークン情報削除
+      await this.tokenRepository.delete({ userId: id });
+      return updatedUser;
+    } catch (error) {
+      console.error('ユーザー情報更新に失敗しました:', error);
+      throw new InternalServerErrorException('ユーザー情報更新に失敗しました');
+    }
+  }
+
+  // ログイン処理
+  async login(loginUserDto: LoginUserDto): Promise<{ accessToken: string }> {
+    const { email, password } = loginUserDto;
+
+    try {
+      // メールアドレスでユーザーを検索
+      const user = await this.userRepository.findOne({ where: { email } });
+
+      // ユーザーが見つからない場合は例外をスロー
+      if (!user) {
+        throw new UnauthorizedException('無効な資格情報です');
+      }
+
+      // パスワードとハッシュ化されたパスワードを比較
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+
+      if (!isPasswordValid) {
+        throw new UnauthorizedException('無効な資格情報です');
+      }
+
+      // JWTトークンを生成
+      const payload = { email: user.email, sub: user.id };
+      const accessToken = this.jwtService.sign(payload);
+
+      return { accessToken };
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      console.error('ログインに失敗しました:', error);
+      throw new InternalServerErrorException('ログインに失敗しました');
     }
   }
 }
