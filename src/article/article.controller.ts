@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { Article } from './article.entity';
@@ -26,6 +27,11 @@ export class ArticleController {
   @Get() // 記事一覧取得
   async getAllArticles(): Promise<Article[]> {
     return await this.articleService.getAllArticles();
+  }
+
+  @Get('search') // 記事検索
+  async searchArticles(@Query('query') query: string): Promise<Article[]> {
+    return this.articleService.searchArticles(query);
   }
 
   @Get(':id') // 記事IDと紐づく記事、コメント一覧を取得

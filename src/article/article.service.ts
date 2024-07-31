@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { Article } from './article.entity';
 import { Comment } from '../comment/comment.entity';
 import { CreateArticleDto } from './dto/create-article.dto';
@@ -33,6 +33,21 @@ export class ArticleService {
     } catch (error) {
       console.error('記事一覧の取得に失敗しました:', error);
       throw new InternalServerErrorException('記事一覧の取得に失敗しました');
+    }
+  }
+
+  // 記事検索
+  async searchArticles(query: string): Promise<Article[]> {
+    try {
+      return this.articleRepository.find({
+        where: [
+          { title: ILike(`%${query}%`) },
+          { content: ILike(`%${query}%`) },
+        ],
+      });
+    } catch (error) {
+      console.error('記事検索に失敗しました:', error);
+      throw new InternalServerErrorException('記事検索に失敗しました');
     }
   }
 
