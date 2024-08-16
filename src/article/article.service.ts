@@ -6,6 +6,7 @@ import { Comment } from '../comment/comment.entity';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { ArticleDetail } from './dto/article-detail.dto';
+import { paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 
 @Injectable()
 export class ArticleService {
@@ -23,6 +24,23 @@ export class ArticleService {
     } catch (error) {
       console.error('記事数の取得に失敗しました:', error);
       throw new InternalServerErrorException('記事数の取得に失敗しました');
+    }
+  }
+
+  // ページ毎に記事取得
+  async getArticlesPerPage(query: PaginateQuery): Promise<Paginated<Article>> {
+    try {
+      const result = paginate(query, this.articleRepository, {
+        sortableColumns: ['id', 'title'],
+        defaultSortBy: [['id', 'DESC']],
+        defaultLimit: 10,
+      });
+      return result;
+    } catch (error) {
+      console.error('ページ毎の記事の取得に失敗しました:', error);
+      throw new InternalServerErrorException(
+        'ページ毎の記事の取得に失敗しました',
+      );
     }
   }
 

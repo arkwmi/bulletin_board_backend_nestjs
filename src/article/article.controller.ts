@@ -14,6 +14,7 @@ import { CreateArticleDto } from './dto/create-article.dto';
 import { GetArticlesDto } from './dto/get-articles.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { ArticleDetail } from './dto/article-detail.dto';
+import { Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 
 @Controller('articles')
 export class ArticleController {
@@ -22,6 +23,13 @@ export class ArticleController {
   @Get('count') // 記事テーブルの全ての行数を取得
   async getArticleCount(): Promise<number> {
     return await this.articleService.getArticleCount();
+  }
+
+  @Get() // ページ毎に記事取得
+  async getArticlesPerPage(
+    @Paginate() query: PaginateQuery,
+  ): Promise<Paginated<Article>> {
+    return await this.articleService.getArticlesPerPage(query);
   }
 
   @Get() // 記事一覧取得
