@@ -1,8 +1,10 @@
-import { Controller, Post, Body, Get, Query, Put } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, Put, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { Public } from './auth.gurad';
+import { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -29,8 +31,9 @@ export class AuthController {
     return this.authService.updateUser(updateUserDto);
   }
 
-  @Post('login') // 新しいログインエンドポイント
-  async login(@Body() loginUserDto: LoginUserDto) {
-    return this.authService.login(loginUserDto);
+  @Public()
+  @Post('login') // ログイン処理
+  async login(@Body() loginUserDto: LoginUserDto, @Res() res: Response) {
+    return this.authService.login(loginUserDto, res);
   }
 }

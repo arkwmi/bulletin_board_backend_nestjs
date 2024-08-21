@@ -18,6 +18,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import bcrypt from 'bcrypt';
 import { LoginUserDto } from './dto/login-user.dto';
 import { JwtService } from '@nestjs/jwt';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -161,7 +162,7 @@ export class AuthService {
   }
 
   // ログイン処理
-  async login(loginUserDto: LoginUserDto): Promise<{ accessToken: string }> {
+  async login(loginUserDto: LoginUserDto, res: Response): Promise<void> {
     const { email, password } = loginUserDto;
 
     try {
@@ -184,7 +185,15 @@ export class AuthService {
       const payload = { email: user.email, sub: user.id };
       const accessToken = this.jwtService.sign(payload);
 
-      return { accessToken };
+      // クッキーにアクセストークンを設定
+      res.cookie('accessToken', accessToken, {
+        httpOnly: true, // JavaScriptからのアクセス禁止(XSS対策)
+        sameSite: 'none', // CSRF対策
+        secure: process.env.NODE_ENV === 'production', // 本番環境ではsecureをtrueに
+        path: '/', // すべてのリクエストにクッキーを送信
+      });
+
+      res.json({ accessToken });
     } catch (error) {
       if (error instanceof UnauthorizedException) {
         throw error;

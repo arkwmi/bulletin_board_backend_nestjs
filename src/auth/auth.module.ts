@@ -8,6 +8,8 @@ import { User } from 'src/user/user.entity';
 import { Token } from 'src/token/token.entity';
 import { UserModule } from 'src/user/user.module';
 import { TokenModule } from 'src/token/token.module';
+import { AuthGuard } from './auth.gurad';
+import { Reflector } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -17,14 +19,16 @@ import { TokenModule } from 'src/token/token.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
+        global: true,
         secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '1h' },
+        signOptions: { expiresIn: '3h' },
       }),
     }),
     UserModule,
     TokenModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, AuthGuard, Reflector],
+  exports: [AuthGuard, JwtModule],
 })
 export class AuthModule {}
