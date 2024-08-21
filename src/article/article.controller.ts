@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { Article } from './article.entity';
@@ -13,6 +14,7 @@ import { CreateArticleDto } from './dto/create-article.dto';
 import { GetArticlesDto } from './dto/get-articles.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { ArticleDetail } from './dto/article-detail.dto';
+import { Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 
 @Controller('articles')
 export class ArticleController {
@@ -23,9 +25,21 @@ export class ArticleController {
     return await this.articleService.getArticleCount();
   }
 
+  @Get() // ページ毎に記事取得
+  async getArticlesPerPage(
+    @Paginate() query: PaginateQuery,
+  ): Promise<Paginated<Article>> {
+    return await this.articleService.getArticlesPerPage(query);
+  }
+
   @Get() // 記事一覧取得
   async getAllArticles(): Promise<Article[]> {
     return await this.articleService.getAllArticles();
+  }
+
+  @Get('search') // 記事検索
+  async searchArticles(@Query('query') query: string): Promise<Article[]> {
+    return this.articleService.searchArticles(query);
   }
 
   @Get(':id') // 記事IDと紐づく記事、コメント一覧を取得

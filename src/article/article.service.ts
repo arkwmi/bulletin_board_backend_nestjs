@@ -1,11 +1,12 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { Article } from './article.entity';
 import { Comment } from '../comment/comment.entity';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { ArticleDetail } from './dto/article-detail.dto';
+import { paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 
 @Injectable()
 export class ArticleService {
@@ -26,6 +27,23 @@ export class ArticleService {
     }
   }
 
+  // ページ毎に記事取得
+  async getArticlesPerPage(query: PaginateQuery): Promise<Paginated<Article>> {
+    try {
+      const result = paginate(query, this.articleRepository, {
+        sortableColumns: ['id', 'title'],
+        defaultSortBy: [['id', 'DESC']],
+        defaultLimit: 10,
+      });
+      return result;
+    } catch (error) {
+      console.error('ページ毎の記事の取得に失敗しました:', error);
+      throw new InternalServerErrorException(
+        'ページ毎の記事の取得に失敗しました',
+      );
+    }
+  }
+
   // 記事一覧取得
   async getAllArticles(): Promise<Article[]> {
     try {
@@ -33,6 +51,21 @@ export class ArticleService {
     } catch (error) {
       console.error('記事一覧の取得に失敗しました:', error);
       throw new InternalServerErrorException('記事一覧の取得に失敗しました');
+    }
+  }
+
+  // 記事検索
+  async searchArticles(query: string): Promise<Article[]> {
+    try {
+      return this.articleRepository.find({
+        where: [
+          { title: ILike(`%${query}%`) },
+          { content: ILike(`%${query}%`) },
+        ],
+      });
+    } catch (error) {
+      console.error('記事検索に失敗しました:', error);
+      throw new InternalServerErrorException('記事検索に失敗しました');
     }
   }
 
