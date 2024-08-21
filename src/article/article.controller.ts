@@ -16,6 +16,8 @@ import { GetArticlesDto } from './dto/get-articles.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { ArticleDetail } from './dto/article-detail.dto';
 import { Response } from 'express';
+import { Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
+
 
 @Controller('articles')
 export class ArticleController {
@@ -24,6 +26,13 @@ export class ArticleController {
   @Get('count') // 記事テーブルの全ての行数を取得
   async getArticleCount(): Promise<number> {
     return await this.articleService.getArticleCount();
+  }
+
+  @Get() // ページ毎に記事取得
+  async getArticlesPerPage(
+    @Paginate() query: PaginateQuery,
+  ): Promise<Paginated<Article>> {
+    return await this.articleService.getArticlesPerPage(query);
   }
 
   @Get() // 記事一覧取得
@@ -70,6 +79,10 @@ export class ArticleController {
   async importBatch(@Body() body: any) {
     const batch = body.batch;
     await this.articleService.importArticles(batch);
+
+  @Get('search') // 記事検索
+  async searchArticles(@Query('query') query: string): Promise<Article[]> {
+    return this.articleService.searchArticles(query);
   }
 
   @Get(':id') // 記事IDと紐づく記事、コメント一覧を取得
