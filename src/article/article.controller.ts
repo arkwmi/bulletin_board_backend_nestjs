@@ -18,7 +18,6 @@ import { ArticleDetail } from './dto/article-detail.dto';
 import { Response } from 'express';
 import { Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 
-
 @Controller('articles')
 export class ArticleController {
   constructor(private readonly articleService: ArticleService) {}
@@ -79,6 +78,7 @@ export class ArticleController {
   async importBatch(@Body() body: any) {
     const batch = body.batch;
     await this.articleService.importArticles(batch);
+  }
 
   @Get('search') // 記事検索
   async searchArticles(@Query('query') query: string): Promise<Article[]> {
