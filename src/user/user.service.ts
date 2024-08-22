@@ -3,12 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
 import { User } from './user.entity';
 import { Parser } from 'json2csv';
+// import { CustomLoggerService } from 'src/logger/custom-logger.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    // private readonly logger: CustomLoggerService,
   ) {}
 
   async getAllUsers(): Promise<User[]> {
@@ -31,6 +33,7 @@ export class UserService {
   // ユーザーテーブルの全ての行数を取得
   async getUserCount(): Promise<number> {
     try {
+      // this.logger.log('会員数取得');
       return await this.userRepository.count();
     } catch (error) {
       console.error('会員数の取得に失敗しました:', error);

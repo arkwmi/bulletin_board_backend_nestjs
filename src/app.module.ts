@@ -8,6 +8,7 @@ import { ArticleModule } from './article/article.module';
 import { CommentModule } from './comment/comment.module';
 import { TokenModule } from './token/token.module';
 import { AuthModule } from './auth/auth.module';
+import { CustomLoggerService } from './logger/custom-logger.service';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { AuthModule } from './auth/auth.module';
     CommentModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, CustomLoggerService],
+  exports: [CustomLoggerService],
 })
 export class AppModule {}
