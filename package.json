@@ -30,6 +30,7 @@
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.4.5",
+    "json2csv": "^6.0.0-alpha.2",
     "mysql": "^2.18.1",
     "nestjs-paginate": "^9.0.1",
     "nodemailer": "^6.9.14",
