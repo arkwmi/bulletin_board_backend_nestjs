@@ -31,7 +31,7 @@ export class CommentController {
   }
 
   @UseGuards(AuthGuard)
-  @Post('user-comments') // ログインユーザーの投稿コメントリストと記事情報を取得
+  @Get('user-comments') // ログインユーザーの投稿コメントリストと記事情報を取得
   async getCommentsAndArticlesByUserId(@Req() req: Request) {
     // const { userId } = getCommentsDto;
     const userId = req['user'].sub; // リクエストからユーザーID取得
