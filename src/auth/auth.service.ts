@@ -134,7 +134,7 @@ export class AuthService {
   }
 
   // ユーザー本登録
-  async updateUser(updateUserDto: UpdateUserDto): Promise<User> {
+  async updateUser(updateUserDto: UpdateUserDto, res: Response): Promise<void> {
     try {
       const { id, nickname, password } = updateUserDto;
       const user = await this.userRepository.findOne({ where: { id } });
@@ -150,11 +150,24 @@ export class AuthService {
       user.nickname = nickname;
       user.password = hashedPassword;
       user.registerCompletedFlg = true;
-      const updatedUser = await this.userRepository.save(user);
+      await this.userRepository.save(user);
 
       // トークン情報削除
       await this.tokenRepository.delete({ userId: id });
-      return updatedUser;
+
+      // JWTトークンを生成
+      const payload = { email: user.email, sub: user.id };
+      const accessToken = this.jwtService.sign(payload);
+
+      // クッキーにアクセストークンを設定
+      res.cookie('accessToken', accessToken, {
+        httpOnly: true, // JavaScriptからのアクセス禁止(XSS対策)
+        sameSite: 'none', // CSRF対策
+        secure: process.env.NODE_ENV === 'production', // 本番環境ではsecureをtrueに
+        path: '/', // すべてのリクエストにクッキーを送信
+      });
+
+      res.json({ accessToken });
     } catch (error) {
       console.error('ユーザー情報更新に失敗しました:', error);
       throw new InternalServerErrorException('ユーザー情報更新に失敗しました');
