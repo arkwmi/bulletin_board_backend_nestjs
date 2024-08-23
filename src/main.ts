@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { AuthGuard } from './auth/auth.gurad';
 import { JwtService } from '@nestjs/jwt';
 import cookieParser from 'cookie-parser';
+import * as bodyParser from 'body-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -20,9 +21,14 @@ async function bootstrap() {
   // CORS設定を有効化
   app.enableCors({
     origin: 'http://localhost:3000',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
+
+  // リクエストボディサイズ制限を設定
+  app.use(bodyParser.json({ limit: '50mb' }));
+  app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+
   await app.listen(5555);
 }
 bootstrap();

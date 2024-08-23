@@ -1,11 +1,13 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Between, Repository, ILike } from 'typeorm';
 import { Article } from './article.entity';
 import { Comment } from '../comment/comment.entity';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { ArticleDetail } from './dto/article-detail.dto';
+import { Parser } from 'json2csv';
+import { paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 
 @Injectable()
 export class ArticleService {
@@ -26,6 +28,23 @@ export class ArticleService {
     }
   }
 
+  // ページ毎に記事取得
+  async getArticlesPerPage(query: PaginateQuery): Promise<Paginated<Article>> {
+    try {
+      const result = paginate(query, this.articleRepository, {
+        sortableColumns: ['id', 'title'],
+        defaultSortBy: [['id', 'DESC']],
+        defaultLimit: 10,
+      });
+      return result;
+    } catch (error) {
+      console.error('ページ毎の記事の取得に失敗しました:', error);
+      throw new InternalServerErrorException(
+        'ページ毎の記事の取得に失敗しました',
+      );
+    }
+  }
+
   // 記事一覧取得
   async getAllArticles(): Promise<Article[]> {
     try {
@@ -41,6 +60,21 @@ export class ArticleService {
     return await this.articleRepository.find({
       where: { userId: userId },
     });
+  }
+
+  // 記事検索
+  async searchArticles(query: string): Promise<Article[]> {
+    try {
+      return this.articleRepository.find({
+        where: [
+          { title: ILike(`%${query}%`) },
+          { content: ILike(`%${query}%`) },
+        ],
+      });
+    } catch (error) {
+      console.error('記事検索に失敗しました:', error);
+      throw new InternalServerErrorException('記事検索に失敗しました');
+    }
   }
 
   // 記事IDと紐づく記事、コメント一覧を取得
@@ -129,6 +163,65 @@ export class ArticleService {
     } catch (error) {
       console.error('記事削除に失敗しました:', error);
       throw new InternalServerErrorException('記事削除に失敗しました');
+    }
+  }
+
+  // 記事データを全て取得
+  async exportAllArticlesToCSV(): Promise<string> {
+    const articles = await this.articleRepository.find();
+    const fields = [
+      'id',
+      'userId',
+      'title',
+      'content',
+      'createdAt',
+      'updatedAt',
+    ];
+    const parser = new Parser({ fields });
+    return parser.parse(articles);
+  }
+
+  // 期間指定で記事データを取得
+  async exportArticlesToCSVByDate(
+    startDate: string,
+    endDate: string,
+  ): Promise<string> {
+    const articles = await this.articleRepository.find({
+      where: {
+        createdAt: Between(new Date(startDate), new Date(endDate)),
+      },
+    });
+    const fields = [
+      'id',
+      'userId',
+      'title',
+      'content',
+      'createdAt',
+      'updatedAt',
+    ];
+    const parser = new Parser({ fields });
+    return parser.parse(articles);
+  }
+
+  // CSVファイルから記事データをインポート
+  async importArticles(batch: any[]): Promise<void> {
+    try {
+      const articles = batch
+        .map((record) => ({
+          id: parseInt(record[0], 10),
+          userId: parseInt(record[1], 10),
+          title: record[2].trim(),
+          content: record[3].trim(),
+          createdAt: new Date(record[4]),
+          updatedAt: new Date(record[5]),
+        }))
+        .filter((article) => !isNaN(article.id)); // IDがNaNでない記事のみをフィルタリング
+      console.log(articles);
+
+      await this.articleRepository.save(articles);
+    } catch (error) {
+      console.error('バッチインポートエラー:', error);
+      throw new InternalServerErrorException('バッチインポートに失敗しました');
     }
   }
 }
