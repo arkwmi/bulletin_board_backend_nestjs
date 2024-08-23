@@ -9,17 +9,20 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './user.entity';
+import { Public } from 'src/auth/auth.gurad';
 import { Response } from 'express';
 
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Public()
   @Get()
   async getAllUsers(): Promise<User[]> {
     return this.userService.getAllUsers();
   }
 
+  @Public()
   @Get('count') // ユーザーテーブルの全ての行数を取得
   async getArticleCount(): Promise<number> {
     try {
@@ -30,6 +33,7 @@ export class UserController {
     }
   }
 
+  @Public()
   @Get('exportAll') // ユーザー全データ取得
   async exportAllUsers(@Res() res: Response): Promise<void> {
     try {
@@ -44,6 +48,7 @@ export class UserController {
     }
   }
 
+  @Public()
   @Get('exportByDateRange') // 期間指定のユーザーデータ取得
   async exportUsersByDateRange(
     @Res() res: Response,
@@ -65,6 +70,7 @@ export class UserController {
     }
   }
 
+  @Public()
   @Post('import') // ユーザーデータインポート
   async importBatch(@Body() body: any) {
     const batch = body.batch;

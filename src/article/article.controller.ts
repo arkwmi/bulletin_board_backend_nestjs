@@ -6,15 +6,17 @@ import {
   Param,
   Post,
   Put,
+  Req,
+  UseGuards,
   Res,
   Query,
 } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { Article } from './article.entity';
 import { CreateArticleDto } from './dto/create-article.dto';
-import { GetArticlesDto } from './dto/get-articles.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { ArticleDetail } from './dto/article-detail.dto';
+import { AuthGuard, Public } from 'src/auth/auth.gurad';
 import { Response } from 'express';
 import { Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 
@@ -22,11 +24,13 @@ import { Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 export class ArticleController {
   constructor(private readonly articleService: ArticleService) {}
 
+  @Public()
   @Get('count') // 記事テーブルの全ての行数を取得
   async getArticleCount(): Promise<number> {
     return await this.articleService.getArticleCount();
   }
 
+  @Public()
   @Get() // ページ毎に記事取得
   async getArticlesPerPage(
     @Paginate() query: PaginateQuery,
@@ -34,11 +38,13 @@ export class ArticleController {
     return await this.articleService.getArticlesPerPage(query);
   }
 
+  @Public()
   @Get() // 記事一覧取得
   async getAllArticles(): Promise<Article[]> {
     return await this.articleService.getAllArticles();
   }
 
+  @Public()
   @Get('exportAll') // 記事全データ取得
   async exportAllArticles(@Res() res: Response): Promise<void> {
     try {
@@ -53,6 +59,7 @@ export class ArticleController {
     }
   }
 
+  @Public()
   @Get('exportByDateRange') // 期間指定の記事データ取得
   async exportArticlesByDateRange(
     @Res() res: Response,
@@ -74,36 +81,47 @@ export class ArticleController {
     }
   }
 
+  @Public()
   @Post('import') // 記事データインポート
   async importBatch(@Body() body: any) {
     const batch = body.batch;
     await this.articleService.importArticles(batch);
   }
 
+  @Public()
   @Get('search') // 記事検索
   async searchArticles(@Query('query') query: string): Promise<Article[]> {
     return this.articleService.searchArticles(query);
   }
 
+  @UseGuards(AuthGuard)
+  @Get('user-articles') // ログイン中のユーザーが投稿した記事一覧を取得
+  async getArticlesByUserId(@Req() req: Request) {
+    const userId = req['user'].sub; // リクエストからユーザーID取得
+    return await this.articleService.getArticlesByUserId(userId);
+  }
+
+  @Public()
   @Get(':id') // 記事IDと紐づく記事、コメント一覧を取得
   async getArticleDetail(@Param('id') id: number): Promise<ArticleDetail> {
     return this.articleService.getArticleDetail(id);
   }
 
+  @UseGuards(AuthGuard)
   @Post() // 記事登録
-  async postArticle(@Body() createArticleDto: CreateArticleDto) {
+  async postArticle(
+    @Body() createArticleDto: CreateArticleDto,
+    @Req() req: Request,
+  ) {
+    const userId = req['user'].sub; // リクエストからユーザーID取得
+    createArticleDto.userId = userId;
     await this.articleService.postArticle(createArticleDto);
     return {
       message: '記事投稿完了',
     };
   }
 
-  @Post('user-articles') // ログイン中のユーザーが投稿した記事一覧を取得
-  async getArticlesByUserId(@Body() getArticlesDto: GetArticlesDto) {
-    const { userId } = getArticlesDto;
-    return await this.articleService.getArticlesByUserId(userId);
-  }
-
+  @UseGuards(AuthGuard)
   @Put(':id') // 記事更新
   async updateArticle(
     @Param('id') id: number,
@@ -113,6 +131,7 @@ export class ArticleController {
     return this.articleService.updateArticle(updateArticleDto);
   }
 
+  @UseGuards(AuthGuard)
   @Delete(':id') // 記事削除
   async deleteArticle(@Param('id') id: number) {
     await this.articleService.deleteArticle(id);

@@ -55,6 +55,13 @@ export class ArticleService {
     }
   }
 
+  // ログイン中のユーザーが投稿した記事一覧を取得
+  async getArticlesByUserId(userId: number): Promise<Article[]> {
+    return await this.articleRepository.find({
+      where: { userId: userId },
+    });
+  }
+
   // 記事検索
   async searchArticles(query: string): Promise<Article[]> {
     try {
@@ -120,16 +127,12 @@ export class ArticleService {
       await this.articleRepository.save(article);
       console.log('記事登録完了');
     } catch (error) {
-      console.error('記事登録に失敗しました:', error);
+      console.error(
+        '記事登録に失敗しました:',
+        error instanceof Error ? error.message : error,
+      );
       throw new InternalServerErrorException('記事登録に失敗しました');
     }
-  }
-
-  // ログイン中のユーザーが投稿した記事一覧を取得
-  async getArticlesByUserId(userId: number): Promise<Article[]> {
-    return await this.articleRepository.find({
-      where: { userId: userId },
-    });
   }
 
   // 記事更新
