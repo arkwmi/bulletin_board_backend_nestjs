@@ -41,7 +41,8 @@ import { AuthGuard } from './auth/auth.gurad';
   ],
   controllers: [AppController],
   providers: [
-    AppService,　CustomLoggerService,
+    AppService,
+    CustomLoggerService,
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
