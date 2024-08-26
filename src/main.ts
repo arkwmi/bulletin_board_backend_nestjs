@@ -4,9 +4,12 @@ import { AuthGuard } from './auth/auth.gurad';
 import { JwtService } from '@nestjs/jwt';
 import cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
+import { CustomLoggerService } from './logger/custom-logger.service';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: new CustomLoggerService(),
+  });
   // クッキーへのアクセス
   app.use(cookieParser());
 
