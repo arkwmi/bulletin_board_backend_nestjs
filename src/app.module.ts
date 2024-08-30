@@ -8,6 +8,9 @@ import { ArticleModule } from './article/article.module';
 import { CommentModule } from './comment/comment.module';
 import { TokenModule } from './token/token.module';
 import { AuthModule } from './auth/auth.module';
+import { CustomLoggerService } from './logger/custom-logger.service';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './auth/auth.gurad';
 
 @Module({
   imports: [
@@ -37,6 +40,14 @@ import { AuthModule } from './auth/auth.module';
     CommentModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    CustomLoggerService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+  ],
+  exports: [CustomLoggerService],
 })
 export class AppModule {}

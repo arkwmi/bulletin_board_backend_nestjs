@@ -26,6 +26,10 @@
 - docker-compose build
 - docker-compose up -d
 
+## コマンド実行方法(dockerターミナル)
+- npm run build
+- node dist/main.js export-users
+
 ## Description
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
