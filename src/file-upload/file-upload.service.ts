@@ -5,17 +5,17 @@ import { CustomLoggerService } from 'src/logger/custom-logger.service';
 @Injectable()
 export class FileUploadService {
   private readonly logger: LoggerService;
-  private minioClient: Client;
+  private storageClient: Client;
 
   constructor(customLoggerService: CustomLoggerService) {
     this.logger = customLoggerService;
 
-    this.minioClient = new Client({
-      endPoint: 'minio',
+    this.storageClient = new Client({
+      endPoint: process.env.STORAGE_ENDPOINT,
       port: 9000,
       useSSL: false,
-      accessKey: 'minio',
-      secretKey: 'password',
+      accessKey: process.env.STORAGE_ACCESS_KEY,
+      secretKey: process.env.STORAGE_SECRET_KEY,
     });
   }
 
@@ -23,7 +23,7 @@ export class FileUploadService {
     const bucketName = 'images';
     const objectName = `${Date.now()}_${file.originalname}`;
 
-    await this.minioClient.putObject(bucketName, objectName, file.buffer);
+    await this.storageClient.putObject(bucketName, objectName, file.buffer);
     return { message: 'minIOへのアップロードに成功しました', objectName };
   }
 }
