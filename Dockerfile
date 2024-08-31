@@ -8,5 +8,9 @@ ENV TZ=Asia/Tokyo
 WORKDIR /app
 COPY ./package.json /app/package.json
 RUN npm install
+RUN apt-get update -qq \
+  && apt-get install -qy  \
+  procps \
+  --no-install-recommends
 
 CMD ["npm", "run", "start:dev"]
