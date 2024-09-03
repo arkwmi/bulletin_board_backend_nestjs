@@ -30,6 +30,12 @@
 - npm run build
 - node dist/main.js export-users
 
+## テスト実行方法(dockerターミナル)
+- npm run test
+
+## カバレッジ(dockerターミナル)
+- npx jest --coverage
+
 ## Description
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
