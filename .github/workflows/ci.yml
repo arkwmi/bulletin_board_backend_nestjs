@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]   # main に push した時
+  pull_request:
+    branches: [ main ]   # PR を作った時
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: bulletin_board
+          MYSQL_USER: username
+          MYSQL_PASSWORD: password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      # 1. リポジトリをチェックアウト
+      - uses: actions/checkout@v4
+
+      # 2. Node.js をセットアップ
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # 3. パッケージをインストール
+      - run: npm install
+        working-directory: backend  # backend フォルダにある場合
+
+      # 4. DB接続待ち（MySQL が立ち上がるのを待つ）
+      - run: |
+          for i in {1..10}; do
+            nc -z 127.0.0.1 3306 && echo "MySQL is up!" && break
+            echo "Waiting for MySQL..."
+            sleep 5
+          done
+
+      # 5. マイグレーション（必要な場合）
+      - run: npm run migration:run
+        working-directory: backend
+
+      # 6. テスト実行
+      - run: npm test
+        working-directory: backend
