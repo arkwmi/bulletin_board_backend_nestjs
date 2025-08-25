@@ -11,6 +11,7 @@ import { AuthModule } from './auth/auth.module';
 import { CustomLoggerService } from './logger/custom-logger.service';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.gurad';
+import { FileUploadModule } from './file-upload/file-upload.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { AuthGuard } from './auth/auth.gurad';
     AuthModule,
     ArticleModule,
     CommentModule,
+    FileUploadModule,
   ],
   controllers: [AppController],
   providers: [
