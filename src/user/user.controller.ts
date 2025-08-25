@@ -6,11 +6,13 @@ import {
   Post,
   Query,
   Res,
+  Put,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './user.entity';
 import { Public } from 'src/auth/auth.gurad';
 import { Response } from 'express';
+import { UpdateNicknameDto } from './dto/update-nickname.dto';
 
 @Controller('users')
 export class UserController {
@@ -75,5 +77,37 @@ export class UserController {
   async importBatch(@Body() body: any) {
     const batch = body.batch;
     await this.userService.importUsers(batch);
+  }
+
+  @Put('nickname') // ニックネーム更新
+  async updateNickname(
+    @Body() updateNicknameDto: UpdateNicknameDto,
+  ): Promise<void> {
+    try {
+      await this.userService.updateNickname(
+        updateNicknameDto.userId,
+        updateNicknameDto.nickname,
+      );
+    } catch (error) {
+      console.error('ニックネームの更新に失敗しました:', error);
+      throw new InternalServerErrorException(
+        'ニックネームの更新に失敗しました',
+      );
+    }
+  }
+
+  @Put('password') // パスワード更新
+  async updatePassword(
+    @Body() updateNicknameDto: UpdateNicknameDto,
+  ): Promise<void> {
+    try {
+      await this.userService.updateNickname(
+        updateNicknameDto.userId,
+        updateNicknameDto.nickname,
+      );
+    } catch (error) {
+      console.error('パスワードの更新に失敗しました:', error);
+      throw new InternalServerErrorException('パスワードの更新に失敗しました');
+    }
   }
 }
