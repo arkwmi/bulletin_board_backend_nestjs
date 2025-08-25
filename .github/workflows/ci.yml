@@ -1,4 +1,4 @@
-name: CI
+name: Backend CI
 
 on:
   push:
@@ -36,8 +36,7 @@ jobs:
           node-version: 18
 
       # 3. パッケージをインストール
-      - run: npm install
-        working-directory: backend  # backend フォルダにある場合
+      - run: npm ci
 
       # 4. DB接続待ち（MySQL が立ち上がるのを待つ）
       - run: |
@@ -49,8 +48,6 @@ jobs:
 
       # 5. マイグレーション（必要な場合）
       - run: npm run migration:run
-        working-directory: backend
 
       # 6. テスト実行
       - run: npm test
-        working-directory: backend
